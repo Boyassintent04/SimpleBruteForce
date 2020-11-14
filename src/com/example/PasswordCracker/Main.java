@@ -5,10 +5,14 @@ import com.sun.xml.internal.ws.api.ha.StickyFeature;
 import javafx.util.Pair;
 
 import java.awt.*;
+import java.io.*;
+import java.nio.Buffer;
+import java.nio.file.StandardOpenOption;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Scanner;
 
 public class Main {
 
@@ -19,16 +23,26 @@ public class Main {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
     };
     static int maxSteps = 10000; //maximum rows in one array
-    static String lookPassword = "A#AAA";      //password to check
+    static String lookPassword = "Foxflo";      //password to check
     static long time;
     public static void main(String[] args) {
+        for(char c: supportedChar){
+            File dir = new File("C:/Users/koenigsf/IdeaProjects/SimpleBruteForce/passwords/" + (int) c);
+            if(!dir.exists()){
+                dir.mkdirs();
+            }
+            File[] files = dir.listFiles();
+            for(File f: files){
+                //f.delete();
+            }
+        }
         time = System.currentTimeMillis();
         crackPassword(1);
     }
 
     public static void crackPassword(int length){
-        System.out.println("trying with " + length);
-        String rcv = getCombinations(length);
+        System.out.println("trying with length = " + length);
+        String rcv = getCombinations2(length);
         if(rcv == null){
             crackPassword(length + 1);
         }else {
@@ -76,7 +90,7 @@ public class Main {
                         }
                     }
                     try{
-                        charTable[j][i] = supportedChar[nowChar[i]];   //set character in Table
+                        charTable[j][i] = supportedChar[nowChar[i]];   //set character in Table#
                     }catch (Exception e){
                         e.printStackTrace();
                     }
@@ -92,12 +106,79 @@ public class Main {
                 }
             }
             for(String password: combinations){
+                if(length > 1 && 1 == 2){
+                    File writeFile = new File("C:/Users/koenigsf/IdeaProjects/SimpleBruteForce/passwords/" + (int) password.charAt(0) + "/" + length + ".txt");
+                    try {
+                        writeFile.createNewFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        FileWriter writer = new FileWriter(writeFile.getAbsolutePath(), true);
+                        writer.write(password + "\r\n");
+                        writer.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
                 if(password.equals(lookPassword)){
                     return password;
                 }
             }
         }
         return null;
+    }
+
+    public static String getCombinations2(int length){
+        for(char c: supportedChar){
+            File file = new File("C:/Users/koenigsf/IdeaProjects/SimpleBruteForce/passwords/" + (int) c + "/" + length + ".txt");
+            boolean lengthDone = lengthFullDone(length);
+            try {
+                FileWriter writer = null;
+                if(!lengthDone){
+                    file.createNewFile();
+                    writer = new FileWriter(file, true);
+                }
+                if(length == 1){
+                    if(!lengthDone){
+                        writer.write(c + "\r\n");
+                    }
+                    if(lookPassword.equals(String.valueOf(c))){
+                        return String.valueOf(c);
+                    }
+                }else{
+                    for(char cInner: supportedChar){
+                        System.out.println(c  + ", " + cInner);
+                        BufferedReader reader = new BufferedReader(new FileReader("C:/Users/koenigsf/IdeaProjects/SimpleBruteForce/passwords/" + (int) cInner + "/" + (length - 1) + ".txt"));
+                        String line;
+                        while((line = reader.readLine()) != null){
+                            String password = c + line;
+                            if(!lengthDone){
+                                writer.write(password + "\r\n");
+                            }
+                            if(password.equals(lookPassword)){
+                                return password;
+                            }
+                        }
+                        reader.close();
+                    }
+                }
+                if(!lengthDone){
+                    writer.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    static boolean lengthFullDone(int length){
+        File file = new File("C:/Users/koenigsf/IdeaProjects/SimpleBruteForce/passwords/" + (int) supportedChar[0] + "/" + (length + 1) + ".txt");
+        if(file.exists()){
+            return true;
+        }
+        return false;
     }
 }
 
