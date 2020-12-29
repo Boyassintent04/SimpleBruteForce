@@ -23,11 +23,11 @@ public class Main {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
     };
     static int maxSteps = 10000; //maximum rows in one array
-    static String lookPassword = "Foxflo";      //password to check
+    static String lookPassword = "asdwas";      //password to check
     static long time;
     public static void main(String[] args) {
         for(char c: supportedChar){
-            File dir = new File("C:/Users/koenigsf/IdeaProjects/SimpleBruteForce/passwords/" + (int) c);
+            File dir = new File("FILEPATH" + (int) c);
             if(!dir.exists()){
                 dir.mkdirs();
             }
